@@ -47,15 +47,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@anthropic-ai/sdk@npm:^0.56.0":
-  version: 0.56.0
-  resolution: "@anthropic-ai/sdk@npm:0.56.0"
-  bin:
-    anthropic-ai-sdk: bin/cli
-  checksum: b34d152f287bdec3a3201ecb2b65d7b00c9d9739b3153681cd68fe3d6298655266441f68a4f381fd650b895cfa26724844ae2a637e558c32c81083efa2a43f7d
-  languageName: node
-  linkType: hard
-
 "@asyncapi/parser@npm:^3.4.0":
   version: 3.4.0
   resolution: "@asyncapi/parser@npm:3.4.0"
@@ -2691,18 +2682,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@langchain/anthropic@npm:^0.3.26":
-  version: 0.3.26
-  resolution: "@langchain/anthropic@npm:0.3.26"
-  dependencies:
-    "@anthropic-ai/sdk": ^0.56.0
-    fast-xml-parser: ^4.4.1
-  peerDependencies:
-    "@langchain/core": ">=0.3.58 <0.4.0"
-  checksum: 971d29847f437e1fcd486479346da5682d182386e27637b5806de1fa4fdd3de7b2b5283d93e95d8562c8b0db79830f0ad5458d1fed6438534b087db2cca616fb
-  languageName: node
-  linkType: hard
-
 "@langchain/community@npm:^0.3.47":
   version: 0.3.49
   resolution: "@langchain/community@npm:0.3.49"
@@ -4096,7 +4075,6 @@ __metadata:
     "@eslint/eslintrc": ^3.1.0
     "@eslint/js": ^9.19.0
     "@jest/globals": ^29.7.0
-    "@langchain/anthropic": ^0.3.26
     "@langchain/community": ^0.3.47
     "@langchain/core": ^0.3.65
     "@langchain/google-genai": ^0.2.9
@@ -11134,17 +11112,6 @@ __metadata:
   bin:
     fxparser: src/cli/cli.js
   checksum: b12daa933bc226bd7df1e1ecbd305e561c83fd6e4a234b5e2728901deca25a9b9522b9d3ebafde41b1f4d87ab814e3efe18c636638580795fdbe4670a556be88
-  languageName: node
-  linkType: hard
-
-"fast-xml-parser@npm:^4.4.1":
-  version: 4.5.3
-  resolution: "fast-xml-parser@npm:4.5.3"
-  dependencies:
-    strnum: ^1.1.1
-  bin:
-    fxparser: src/cli/cli.js
-  checksum: cd6a184941ec6c23f9e6b514421a3f396cfdff5f4a8c7c27bd0eff896edb4a2b55c27da16f09b789663613dfc4933602b9b71ac3e9d1d2ddcc0492fc46c8fa52
   languageName: node
   linkType: hard
 
@@ -19136,13 +19103,6 @@ __metadata:
   dependencies:
     js-tokens: ^9.0.1
   checksum: f697a31c4ad82ad259e0c57e715cde4585084af2260e38b3c916f34f0d462cec2af294a8b8cf062cc6f40d940ece7b79b0ec8316beabb2ed13c6e13e95ca70f0
-  languageName: node
-  linkType: hard
-
-"strnum@npm:^1.1.1":
-  version: 1.1.2
-  resolution: "strnum@npm:1.1.2"
-  checksum: a85219eda13e97151c95e343a9e5960eacfb0a0ff98104b4c9cb7a212e3008bddf0c9714c9c37c2e508be78e741a04afc80027c2dc18509d1b5ffd4c37191fc2
   languageName: node
   linkType: hard
 

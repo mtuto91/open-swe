@@ -9,30 +9,6 @@ export const MODEL_OPTIONS = [
   //   value: "anthropic:extended-thinking:claude-opus-4-0",
   // },
   {
-    label: "Claude Sonnet 4",
-    value: "anthropic:claude-sonnet-4-0",
-  },
-  {
-    label: "Claude Opus 4.1",
-    value: "anthropic:claude-opus-4-1",
-  },
-  {
-    label: "Claude Opus 4",
-    value: "anthropic:claude-opus-4-0",
-  },
-  {
-    label: "Claude 3.7 Sonnet",
-    value: "anthropic:claude-3-7-sonnet-latest",
-  },
-  {
-    label: "Claude 3.5 Sonnet",
-    value: "anthropic:claude-3-5-sonnet-latest",
-  },
-  {
-    label: "Claude 3.5 Haiku",
-    value: "anthropic:claude-3-5-haiku-latest",
-  },
-  {
     label: "GPT 5",
     value: "openai:gpt-5",
   },
