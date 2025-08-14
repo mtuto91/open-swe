@@ -43,11 +43,7 @@ export enum CircuitState {
   OPEN = "OPEN",
 }
 
-export const PROVIDER_FALLBACK_ORDER = [
-  "openai",
-  "anthropic",
-  "google-genai",
-] as const;
+export const PROVIDER_FALLBACK_ORDER = ["openai", "google-genai"] as const;
 export type Provider = (typeof PROVIDER_FALLBACK_ORDER)[number];
 
 export interface ModelManagerConfig {
@@ -78,8 +74,6 @@ const providerToApiKey = (
   switch (providerName) {
     case "openai":
       return apiKeys.openaiApiKey;
-    case "anthropic":
-      return apiKeys.anthropicApiKey;
     case "google-genai":
       return apiKeys.googleApiKey;
     default:
@@ -171,31 +165,22 @@ export class ModelManager {
       ? thinkingBudgetTokens * 4
       : undefined;
 
-    let finalMaxTokens = maxTokens ?? 10_000;
-    if (modelName.includes("claude-3-5-haiku")) {
-      finalMaxTokens = finalMaxTokens > 8_192 ? 8_192 : finalMaxTokens;
-    }
-
+    const finalMaxTokens = maxTokens ?? 10_000;
     const apiKey = this.getUserApiKey(graphConfig, provider);
 
     const modelOptions: InitChatModelArgs = {
       modelProvider: provider,
       max_retries: MAX_RETRIES,
       ...(apiKey ? { apiKey } : {}),
-      ...(thinkingModel && provider === "anthropic"
+      ...(modelName.includes("gpt-5")
         ? {
-            thinking: { budget_tokens: thinkingBudgetTokens, type: "enabled" },
-            maxTokens: thinkingMaxTokens,
+            max_completion_tokens: finalMaxTokens,
+            temperature: 1,
           }
-        : modelName.includes("gpt-5")
-          ? {
-              max_completion_tokens: finalMaxTokens,
-              temperature: 1,
-            }
-          : {
-              maxTokens: finalMaxTokens,
-              temperature: thinkingModel ? undefined : temperature,
-            }),
+        : {
+            maxTokens: finalMaxTokens,
+            temperature: thinkingModel ? undefined : temperature,
+          }),
     };
 
     logger.debug("Initializing model", {
@@ -378,13 +363,6 @@ export class ModelManager {
     task: LLMTask,
   ): ModelLoadConfig | null {
     const defaultModels: Record<Provider, Record<LLMTask, string>> = {
-      anthropic: {
-        [LLMTask.PLANNER]: "claude-sonnet-4-0",
-        [LLMTask.PROGRAMMER]: "claude-sonnet-4-0",
-        [LLMTask.REVIEWER]: "claude-sonnet-4-0",
-        [LLMTask.ROUTER]: "claude-3-5-haiku-latest",
-        [LLMTask.SUMMARIZER]: "claude-sonnet-4-0",
-      },
       "google-genai": {
         [LLMTask.PLANNER]: "gemini-2.5-flash",
         [LLMTask.PROGRAMMER]: "gemini-2.5-pro",

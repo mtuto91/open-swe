@@ -182,8 +182,8 @@ webhooks.on("issues.labeled", async ({ payload }) => {
 
     if (isMaxLabel) {
       config.configurable = {
-        plannerModelName: "anthropic:claude-opus-4-1",
-        programmerModelName: "anthropic:claude-opus-4-1",
+        plannerModelName: "openai:gpt-5",
+        programmerModelName: "openai:gpt-5",
       };
     }
 

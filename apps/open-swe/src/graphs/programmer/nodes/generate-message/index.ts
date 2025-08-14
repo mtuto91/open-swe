@@ -32,7 +32,6 @@ import {
   DEPENDENCIES_INSTALLED_PROMPT,
   DEPENDENCIES_NOT_INSTALLED_PROMPT,
   DYNAMIC_SYSTEM_PROMPT,
-  STATIC_ANTHROPIC_SYSTEM_INSTRUCTIONS,
   STATIC_SYSTEM_INSTRUCTIONS,
 } from "./prompt.js";
 import { getRepoAbsolutePath } from "@open-swe/shared/git";
@@ -84,23 +83,16 @@ const formatDynamicContextPrompt = (state: GraphState) => {
     );
 };
 
-const formatStaticInstructionsPrompt = (
-  state: GraphState,
-  isAnthropicModel: boolean,
-) => {
-  return (
-    isAnthropicModel
-      ? STATIC_ANTHROPIC_SYSTEM_INSTRUCTIONS
-      : STATIC_SYSTEM_INSTRUCTIONS
-  )
-    .replaceAll("{REPO_DIRECTORY}", getRepoAbsolutePath(state.targetRepository))
-    .replaceAll("{CUSTOM_RULES}", formatCustomRulesPrompt(state.customRules));
+const formatStaticInstructionsPrompt = (state: GraphState) => {
+  return STATIC_SYSTEM_INSTRUCTIONS.replaceAll(
+    "{REPO_DIRECTORY}",
+    getRepoAbsolutePath(state.targetRepository),
+  ).replaceAll("{CUSTOM_RULES}", formatCustomRulesPrompt(state.customRules));
 };
 
 const formatCacheablePrompt = (
   state: GraphState,
   args?: {
-    isAnthropicModel?: boolean;
     excludeCacheControl?: boolean;
   },
 ): CacheablePromptSegment[] => {
@@ -110,7 +102,7 @@ const formatCacheablePrompt = (
     // Cache Breakpoint 2: Static Instructions
     {
       type: "text",
-      text: formatStaticInstructionsPrompt(state, !!args?.isAnthropicModel),
+      text: formatStaticInstructionsPrompt(state),
       ...(!args?.excludeCacheControl
         ? { cache_control: { type: "ephemeral" } }
         : {}),
@@ -169,11 +161,11 @@ async function createToolsAndPrompt(
     missingMessages: BaseMessage[];
   },
 ): Promise<{
-  providerTools: Record<Provider, BindToolsInput[]>;
-  providerMessages: Record<Provider, BaseMessageLike[]>;
+  tools: BindToolsInput[];
+  messages: BaseMessageLike[];
 }> {
   const mcpTools = await getMcpTools(config);
-  const sharedTools = [
+  const tools = [
     createGrepTool(state, config),
     createShellTool(state, config),
     createRequestHumanHelpToolFields(),
@@ -184,27 +176,15 @@ async function createToolsAndPrompt(
     createSearchDocumentForTool(state, config),
     createWriteDefaultTsConfigTool(state, config),
     ...mcpTools,
-  ];
-
-  logger.info(
-    `MCP tools added to Programmer: ${mcpTools.map((t) => t.name).join(", ")}`,
-  );
-
-  const anthropicModelTools = [
-    ...sharedTools,
-    {
-      type: "text_editor_20250429",
-      name: "str_replace_based_edit_tool",
-      cache_control: { type: "ephemeral" },
-    },
-  ];
-  const nonAnthropicModelTools = [
-    ...sharedTools,
     {
       ...createApplyPatchTool(state, config),
       cache_control: { type: "ephemeral" },
     },
   ];
+
+  logger.info(
+    `MCP tools added to Programmer: ${mcpTools.map((t) => t.name).join(", ")}`,
+  );
 
   const inputMessages = filterMessagesWithoutContent([
     ...state.internalMessages,
@@ -214,7 +194,7 @@ async function createToolsAndPrompt(
     throw new Error("No messages to process.");
   }
 
-  const anthropicMessages = [
+  const messages = [
     {
       role: "system",
       content: formatCacheablePrompt(
@@ -223,25 +203,6 @@ async function createToolsAndPrompt(
           taskPlan: options.latestTaskPlan ?? state.taskPlan,
         },
         {
-          isAnthropicModel: true,
-          excludeCacheControl: false,
-        },
-      ),
-    },
-    ...convertMessagesToCacheControlledMessages(inputMessages),
-    formatSpecificPlanPrompt(state),
-  ];
-
-  const nonAnthropicMessages = [
-    {
-      role: "system",
-      content: formatCacheablePrompt(
-        {
-          ...state,
-          taskPlan: options.latestTaskPlan ?? state.taskPlan,
-        },
-        {
-          isAnthropicModel: false,
           excludeCacheControl: true,
         },
       ),
@@ -251,16 +212,8 @@ async function createToolsAndPrompt(
   ];
 
   return {
-    providerTools: {
-      anthropic: anthropicModelTools,
-      openai: nonAnthropicModelTools,
-      "google-genai": nonAnthropicModelTools,
-    },
-    providerMessages: {
-      anthropic: anthropicMessages,
-      openai: nonAnthropicMessages,
-      "google-genai": nonAnthropicMessages,
-    },
+    tools,
+    messages,
   };
 }
 
